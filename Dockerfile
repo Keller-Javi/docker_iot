@@ -4,10 +4,10 @@ WORKDIR /app
 
 ENV TZ="America/Argentina/Buenos_Aires"
 
-COPY ./requirements.txt /app/requirements.txt
+COPY /app/requirements.txt ./requirements.txt 
 
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
 COPY . /app
 
-CMD ["python", "/app/clienteMqtt.py"]
+CMD ["python", "./app/clienteMqtt.py"]
