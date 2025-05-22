@@ -31,3 +31,34 @@ def add_contact():
                     , (nombre, tel, email))
         mysql.connection.commit()
     return redirect(url_for('index'))
+
+@app.route('/delete_contact/<string:id>')
+def delete_contact(id):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM contactos WHERE id = {0}".format(id))
+    mysql.connection.commit()
+    return redirect(url_for('index'))
+
+@app.route('/edit_contact/<string:id>')
+def get_contact(id):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM contactos WHERE id = {0}".format(id))
+    datos = cur.fetchall()
+    return render_template('edit_contact.html', contacto = datos[0])
+
+@app.route('/update_contact/<string:id>', methods=['POST'])
+def update_contact(id):
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        tel = request.form['tel']
+        email = request.form['email']
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            UPDATE contactos
+            SET nombre = %s,
+                tel = %s,
+                email = %s
+            WHERE id = %s
+        """, (nombre, tel, email, id))
+        mysql.connection.commit()
+    return redirect(url_for('index'))

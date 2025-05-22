@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<form action="{{url_for('update_contact')}}" method="POST">
+  <input type="text" name="nombre" placeholder="{{contacto.1}}">
+  <input type="email" name="email" placeholder="{{contacto.2}}">
+  <input type="tel" name="tel" placeholder="{{contacto.3}}">
+  <button>editar contacto</button>
+</form>
+{% endblock %}
