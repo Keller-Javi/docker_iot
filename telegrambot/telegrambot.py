@@ -1,20 +1,29 @@
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
-import logging, os, asyncio, aiomysql, traceback, locale
+import logging, os, asyncio, traceback, locale, ssl
 from aiomqtt import Client
+import nest_asyncio
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.basicConfig(format='%(asctime)s - TelegramBot - %(levelname)s - %(message)s', level=logging.INFO) 
 
-async def inicio_mqtt():
+def crear_cliente_mqtt():
     """Returns:
             Client: A Mqtt client configured to connect to the server specified by the environment variables."""
     
+    tls_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    tls_context.minimum_version = ssl.TLSVersion.TLSv1_2
+    tls_context.maximum_version = ssl.TLSVersion.TLSv1_3
+    tls_context.verify_mode = ssl.CERT_REQUIRED
+    tls_context.check_hostname = True
+    tls_context.load_default_certs()
+
     return Client(
         hostname=os.environ["SERVIDOR"],
         username=os.environ["MQTT_USR"],
         password=os.environ["MQTT_PASS"],
-        port=int(os.environ["PUERTO_MQTTS"]))
+        port=int(os.environ["PUERTO_MQTTS"]),
+        tls_context=tls_context)
 
 async def sin_autorizacion(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handles unauthorized access attempts by sending a message to the user."""
@@ -79,6 +88,40 @@ async def config(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                         "\nEl modo de operación del rele es:" + os.environ["MODO_OPERACION"] +
                                         "\nEl setpoint de temperatura es:" + os.environ["SETPOINT_TEMPERATURA"])
 
+async def publicar_datos_mqtt(cliente, topico, valor):
+    """Publishes data to an MQTT topic.
+    Args:
+        cliente (str): The MQTT client identifier.
+        topico (str): The MQTT topic to publish to.
+        valor : The value to publish.
+    """
+    async with cliente as c:
+        await c.publish(f'{os.environ["ID_DISPOSITIVO"]}/{topico}', str(valor))
+
+async def setpoint(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handles the /setpoint command by setting the temperature setpoint for the bot."""
+
+    logging.info("Se intenta de modificar el setpoint de temperatura")
+    logging.info(context.args)
+    if context.args:
+        try:
+            setpoint = float(context.args[0])
+            if setpoint >= 0:
+                await publicar_datos_mqtt(context.bot_data['mqtt'], 'setpoint', setpoint)
+                
+                context.bot_data['setpoint'] = setpoint
+
+                logging.info("Se modificó el setpoint de temperatura a: " + str(setpoint))
+
+                await context.bot.send_message(update.message.chat.id, 
+                                               text=f"El setpoint de temperatura es: {setpoint} °C")
+            else:
+                await context.bot.send_message(update.message.chat.id, 
+                                               text="El setpoint de temperatura debe ser mayor o igual a 0")
+        except ValueError:
+            await context.bot.send_message(update.message.chat.id, 
+                                           text="El setpoint de temperatura debe ser un número válido")
+
 async def periodo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handles the /periodo command by setting the sensing period for the bot."""
 
@@ -88,9 +131,7 @@ async def periodo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             periodo=int(context.args[0])
             if periodo > 0:
-                mqtt_client = context.bot_data.get('mqtt')
-                if mqtt_client:
-                    await mqtt_client.publish(f'{os.environ["TB_TOKEN"]}/periodo', str(periodo))
+                await publicar_datos_mqtt(context.bot_data['mqtt'], 'periodo', periodo)
                             
                 context.bot_data['periodo'] = periodo
 
@@ -105,21 +146,27 @@ async def periodo(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(update.message.chat.id, 
                                            text="El periodo de sensado debe ser un número entero")
 
-def main():
+async def main():
     """Main function to set up the Telegram bot and its handlers."""
+    
+    mqtt_client = crear_cliente_mqtt()
 
     logging.info("Iniciando el Bot de Telegram")
     token=os.environ["TB_TOKEN"]
     autorizados=[int(x) for x in os.environ["TB_AUTORIZADOS"].split(',')] # Si no funciona, por como global
-
     logging.info(autorizados)
     application = Application.builder().token(token).build()
+
+    application.bot_data['mqtt'] = mqtt_client
+
     application.add_handler(MessageHandler((~filters.User(autorizados)), sin_autorizacion))
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('acercade', acercade))
     application.add_handler(CommandHandler('config', config))
     application.add_handler(CommandHandler('periodo', periodo))
-    application.run_polling()
+    application.add_handler(CommandHandler('setpoint', setpoint))
+    await application.run_polling()
 
 if __name__ == '__main__':
-    main()
+    nest_asyncio.apply()
+    asyncio.run(main())
