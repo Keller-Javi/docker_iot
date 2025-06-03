@@ -1,10 +1,24 @@
 {% extends "layout.html" %}
 {% block body %}
-    <h1>Crear usuario</h1>
-    <form method="POST" action="{{url_for('registrar')}}">
-        <input autofocus name="usuario" placeholder="Usuario" type="text">
-        <input name="password" placeholder="Contraseña" type="password">
-        <button type="submit">Aceptar</button>
-    </form>
 
+<div style="float: right;">
+<label for="botonCrearCuenta" class="form-label mt-4">Si ya tienes una cuenta puedes: </label>
+<a id="botonCrearCuenta" href="{{url_for('login')}}" class="btn btn-danger">Iniciar sesión</a>
+</div>
+<div style="max-width: 30rem;" class="mx-auto">
+    <form method="POST" action="{{url_for('registrar')}}">
+    <fieldset>
+        <legend style="text-align: center;">Crear Cuenta</legend>
+        <div>
+        <label for="exampleInputEmail1" class="form-label mt-4">Nombre de usuario</label>
+        <input autofocus type="text" name="usuario" class="form-control" id="exampleInputEmail1" placeholder="Usuario">
+        </div>
+        <div>
+        <label for="exampleInputPassword1" class="form-label mt-4">Contraseña</label>
+        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Contraseña" name="password" autocomplete="off">
+        </div>
+        <button type="submit" class="btn btn-primary mt-4">Enviar</button>
+    </fieldset>
+    </form>
+</div>
 {% endblock %}

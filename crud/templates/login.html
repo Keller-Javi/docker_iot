@@ -1,10 +1,24 @@
 {% extends "layout.html" %}
 {% block body %}
-    <h1>Iniciar sesión</h1>
+
+<div style="float: right;">
+<label for="botonCrearCuenta" class="form-label mt-4">Si no tienes una cuenta puedes: </label>
+<a id="botonCrearCuenta" href="{{url_for('registrar')}}" class="btn btn-danger">Registrarse</a>
+</div>
+<div style="max-width: 30rem;" class="mx-auto">
     <form method="POST" action="{{url_for('login')}}">
-        <input autofocus name="usuario" placeholder="Usuario" type="text">
-        <input name="password" placeholder="Contraseña" type="password">
-        <button type="submit">Aceptar</button>
-        <a href="{{url_for('registrar')}}" style="float: right;">Registrarse</a>
+    <fieldset>
+        <legend style="text-align: center;">Iniciar Sesión</legend>
+        <div>
+        <label for="exampleInputEmail1" class="form-label mt-4">Nombre de usuario</label>
+        <input autofocus type="text" name="usuario" class="form-control" id="exampleInputEmail1" placeholder="Usuario">
+        </div>
+        <div>
+        <label for="exampleInputPassword1" class="form-label mt-4">Contraseña</label>
+        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Contraseña" name="password" autocomplete="off">
+        </div>
+        <button type="submit" class="btn btn-primary mt-4">Enviar</button>
+    </fieldset>
     </form>
+</div>
 {% endblock %}

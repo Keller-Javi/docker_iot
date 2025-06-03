@@ -44,18 +44,23 @@ def registrar():
         elif not request.form.get("password"):
             return "el campo contraseña es oblicatorio"
 
-        passhash=generate_password_hash(request.form.get("password"), method='scrypt', salt_length=16)
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO usuarios (usuario, hash) VALUES (%s,%s)", (request.form.get("usuario"), passhash[17:]))
-        if mysql.connection.affected_rows():
-            flash('Se agregó un usuario')  # usa sesión
-            logging.info("se agregó un usuario")
-        mysql.connection.commit()
+        try:
+            passhash=generate_password_hash(request.form.get("password"), method='scrypt', salt_length=16)
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT INTO usuarios (usuario, hash) VALUES (%s,%s)", (request.form.get("usuario"), passhash[17:]))
+            if mysql.connection.affected_rows():
+                flash('Se agregó un usuario')  # usa sesión
+                logging.info("se agregó un usuario")
+            mysql.connection.commit()
 
-        session.permanent = True
-        session["user_id"]=request.form.get("usuario")
-        logging.info("se registró un usuario correctamente")
-        return redirect(url_for('index'))
+            session.permanent = True
+            session["user_id"]=request.form.get("usuario")
+            logging.info("se registró un usuario correctamente")
+            return redirect(url_for('index'))
+        except Exception as e:
+            logging.error("Error al registrar el usuario: {}".format(e))
+            flash('Ya existe este usuario')
+            return redirect(url_for('registrar'))
 
     return render_template('registrar.html')
 
@@ -91,7 +96,7 @@ def index():
     cur.execute('SELECT * FROM contactos')
     datos = cur.fetchall()
     cur.close()
-    return render_template('index.html', contactos = datos)
+    return render_template('index.html', contactos = datos, dark_mode=session.get("darkmode", False))
 
 @app.route('/add_contact', methods=['POST'])
 @require_login
@@ -127,7 +132,7 @@ def conseguir_contacto(id):
     cur.execute('SELECT * FROM contactos WHERE id = %s', (id,))
     datos = cur.fetchone()
     logging.info(datos)
-    return render_template('editar-contacto.html', contacto = datos)
+    return render_template('editar-contacto.html', contacto = datos, dark_mode=session.get("darkmode", False))
 
 @app.route('/actualizar/<id>', methods=['POST'])
 @require_login
@@ -150,3 +155,15 @@ def logout():
     session.clear()
     logging.info("el usuario {} cerró su sesión".format(session.get("user_id")))
     return redirect(url_for('index'))
+
+@app.route("/darkmode", methods=["POST"])
+@require_login
+def darkmode():
+    """Cambiar el modo de visualización"""
+    if request.method == "POST":
+        if session.get("darkmode") is None:
+            session["darkmode"] = True
+        else:
+            session["darkmode"] = not session["darkmode"]
+        logging.info("cambió el modo de visualización a {}".format(session.get("darkmode")))
+    return redirect(request.referrer or url_for('index'))
