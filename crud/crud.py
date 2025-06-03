@@ -51,6 +51,10 @@ def registrar():
             flash('Se agregó un usuario')  # usa sesión
             logging.info("se agregó un usuario")
         mysql.connection.commit()
+
+        session.permanent = True
+        session["user_id"]=request.form.get("usuario")
+        logging.info("se registró un usuario correctamente")
         return redirect(url_for('index'))
 
     return render_template('registrar.html')
@@ -76,6 +80,7 @@ def login():
                 return redirect(url_for('index'))
             else:
                 flash('usuario o contraseña incorrecto')
+                logging.info("usuario o contraseña incorrecto")
                 return redirect(url_for('login'))
     return render_template('login.html')
 
