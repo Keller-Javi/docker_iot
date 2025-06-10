@@ -22,11 +22,8 @@
     <div class="container-fluid">
       <a class="navbar-brand" href="#">Ejercicio CRUD</a>
       {% if session.get("user_id") %}
-      <div class="d-flex">
-        <div class="navbar-brand nav-item pe-3 pt-2">{{ session.get("user_id") }}</div>
-        <a href="{{url_for('logout')}}" class="btn btn-outline-danger my-2 my-sm-0" type="submit">Salir</a>
-      </div>
-
+        <a class="navbar-brand" href="{{url_for('add_broker')}}">Añadir BROKER</a>
+        <a class="navbar-brand" href="{{url_for('add_node')}}">Añadir nodo</a>
         <form class="d-flex" method="POST" action="{{url_for('darkmode')}}">
           {% if dark_mode %}
           <button type="submit" class="btn btn-light">Modo claro</button>
@@ -34,6 +31,11 @@
           <button type="submit" class="btn btn-dark">Modo oscuro</button>
           {% endif %}
         </form>
+
+        <div class="d-flex">
+          <div class="navbar-brand nav-item pe-3 pt-2">{{ session.get("user_id") }}</div>
+          <a href="{{url_for('logout')}}" class="btn btn-outline-danger my-2 my-sm-0" type="submit">Salir</a>
+        </div>
       
       {% endif %}
     </div>

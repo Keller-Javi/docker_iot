@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="row">
+  <div class="col-md-7 mx-auto">
+    <div class="card card-body">
+      <form action="{{url_for('add_broker')}}" method="POST">
+        <legend>Cargar BROKER</legend>
+        <div class="form-group">
+          <label class="col-form-label mt-4" for="url_broker">URL</label>
+          <input type="text" class="form-control" id="url_broker" data-ddg-inputtype="unknown" name="url_broker"
+            placeholder="mqtt://broker.hivemq.com" value="broker.1" required>
+        </div>
+        <div class="form-group">
+          <label class="col-form-label mt-4" for="port_broker">PUERTO</label>
+          <input type="text" class="form-control" id="port_broker" data-ddg-inputtype="unknown" name="port_broker"
+            placeholder="1883" value="broker.2" required>
+        </div>
+        <div class="form-group">
+          <label for="username" class="form-label mt-4">Uruario</label>
+          <input type="text" name="username" class="form-control" id="username" aria-describedby="emailHelp"
+            data-ddg-inputtype="identities.emailAddress" data-ddg-autofill="true" value="broker.3" placeholder="Pedro" required>
+        </div>
+        <div class="form-group">
+          <label for="password" class="form-label mt-4">Contraseña</label>
+          <input type="password" name="password" class="form-control" id="password" aria-describedby="emailHelp"
+            data-ddg-inputtype="identities.emailAddress" data-ddg-autofill="true" value="broker.4" required>
+        </div>
+        <button type="submit" class="btn btn-primary mt-4">Guardar</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

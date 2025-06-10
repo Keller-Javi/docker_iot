@@ -167,3 +167,36 @@ def darkmode():
             session["darkmode"] = not session["darkmode"]
         logging.info("cambió el modo de visualización a {}".format(session.get("darkmode")))
     return redirect(request.referrer or url_for('index'))
+
+@app.route("/add_broker", methods=["GET", "POST"])
+@require_login
+def add_broker():
+    if request.method == "POST":
+        if not request.form.get("url_broker"):
+            return "el campo URL es oblicatorio"
+        elif not request.form.get("port_broker"):
+            return "el campo PUERTO es oblicatorio"
+        elif not request.form.get("username"):
+            return "el campo usuario es oblicatorio"
+        elif not request.form.get("password"):
+            return "el campo contraseña es oblicatorio"
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM usuarios WHERE usuario LIKE %s", (request.form.get("usuario"),))
+        rows=cur.fetchone()
+        if(rows):
+            if (check_password_hash('scrypt:32768:8:1$' + rows[2],request.form.get("password"))):
+                session.permanent = True
+                session["user_id"]=request.form.get("usuario")
+                logging.info("se autenticó correctamente")
+                return redirect(url_for('index'))
+            else:
+                flash('usuario o contraseña incorrecto')
+                logging.info("usuario o contraseña incorrecto")
+                return redirect(url_for('add_broker'))
+    return render_template('add_broker.html')
+
+@app.route("/add_node", methods=["POST"])
+@require_login
+def add_node():
+    return redirect(request.referrer or url_for('index'))
