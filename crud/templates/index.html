@@ -24,33 +24,30 @@
     </div>
   </div>
 </div>
-<div class="row pt-5 ">
-  <div class="col-md-7 mx-auto">
-    <table class="table table-hover table-default">
-      <thead>
-        <tr>
-          <th scope="col">ID</th>
-          <th scope="col">Nombre completo</th>
-          <th scope="col">teléfono</th>
-          <th scope="col">Email</th>
-          <th scope="col">acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for contacto in contactos %}
-        <tr>
-          <td>{{contacto.0}}</td>
-          <td>{{contacto.1}}</td>
-          <td>{{contacto.2}}</td>
-          <td>{{contacto.3}}</td>
-          <td>
-            <a href="{{url_for('conseguir_contacto',id=contacto.0)}}" class="btn btn-secondary">editar</a>
-            <a href="{{url_for('borrar_contacto',id=contacto.0)}}" class="btn btn-danger btn-borrar">borrar</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
+
+<h1>Control de nodos</h1>
+
+
+<form action="{{url_for('index')}}" method="POST">
+<label for="nodo">Selecciona Nodo:</label>
+    <select name="nodo" id="nodo" required>
+      {% for n in nodos %}
+        <option value="{{ n }}">{{ n }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="comando">Comando:</label>
+    <select name="comando" id="comando" required>
+      <option value="destello">Destello</option>
+      <option value="setpoint">Setpoint</option>
+    </select>
+
+    <div id="setpoint-div" style="display:none;">
+      <label for="valor_setpoint">Valor Setpoint:</label>
+      <input type="number" id="valor_setpoint" name="valor_setpoint" min="0">
+      <br><br>
+    </div>
+
+    <button type="submit">Enviar</button>
+</form>
 {% endblock %}

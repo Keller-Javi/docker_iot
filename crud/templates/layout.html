@@ -40,6 +40,19 @@
       {% endif %}
     </div>
   </nav>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const comandoSelect = document.getElementById('comando');
+      const setpointDiv = document.getElementById('setpoint-div');
+
+      function ajustarCampo() {
+        setpointDiv.style.display = comandoSelect.value === 'setpoint' ? 'block' : 'none';
+      }
+
+      comandoSelect.addEventListener('change', ajustarCampo);
+      ajustarCampo();
+    });
+  </script>
 </head>
 
 <body>

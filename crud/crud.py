@@ -4,6 +4,7 @@ import os, logging
 from functools import wraps
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
+from flask_mqtt import Mqtt
 
 logging.basicConfig(format='%(asctime)s - CRUD - %(levelname)s - %(message)s', level=logging.INFO)
 
@@ -13,6 +14,7 @@ app.wsgi_app = ProxyFix(
     app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
 )
 
+# Configuración de la base de datos
 app.secret_key = os.environ["FLASK_SECRET_KEY"]
 app.config["MYSQL_USER"] = os.environ["MYSQL_USER"]
 app.config["MYSQL_PASSWORD"] = os.environ["MYSQL_PASSWORD"]
@@ -20,6 +22,19 @@ app.config["MYSQL_DB"] = os.environ["MYSQL_DB"]
 app.config["MYSQL_HOST"] = os.environ["MYSQL_HOST"]
 app.config['PERMANENT_SESSION_LIFETIME']=180
 mysql = MySQL(app)
+
+# Configuración del broker MQTT
+app.config['MQTT_BROKER_PORT'] = int(os.environ['PUERTO_MQTTS'])
+app.config['MQTT_BROKER_URL'] = os.environ['DOMINIO']
+app.config['MQTT_USERNAME'] = os.environ['MQTT_USR']
+app.config['MQTT_PASSWORD'] = os.environ['MQTT_PASS']
+app.config['MQTT_KEEPALIVE'] = 360  # Tiempo de keepalive
+app.config['MQTT_TLS_ENABLED'] = True  # Habilita TLS si es necesario
+
+import ssl
+app.config['MQTT_TLS_VERSION'] = ssl.PROTOCOL_TLSv1_2
+
+mqtt = Mqtt(app)
 
 # rutas
 
@@ -35,14 +50,12 @@ def require_login(f):
 def registrar():
     """Registrar usuario"""
     if request.method == "POST":
-
-        # Ensure username was submitted
         if not request.form.get("usuario"):
-            return "el campo usuario es oblicatorio"
-
-        # Ensure password was submitted
+            flash("El campo usuario es oblicatorio", "danger")
+            return redirect(url_for('login'))
         elif not request.form.get("password"):
-            return "el campo contraseña es oblicatorio"
+            flash("El campo contraseña es oblicatorio", "danger")
+            return redirect(url_for('login'))
 
         try:
             passhash=generate_password_hash(request.form.get("password"), method='scrypt', salt_length=16)
@@ -67,12 +80,12 @@ def registrar():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        # Ensure username was submitted
         if not request.form.get("usuario"):
-            return "el campo usuario es oblicatorio"
-        # Ensure password was submitted
+            flash("El campo usuario es oblicatorio", "danger")
+            return redirect(url_for('login'))
         elif not request.form.get("password"):
-            return "el campo contraseña es oblicatorio"
+            flash("El campo contraseña es oblicatorio", "danger")
+            return redirect(url_for('login'))
 
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM usuarios WHERE usuario LIKE %s", (request.form.get("usuario"),))
@@ -89,14 +102,35 @@ def login():
                 return redirect(url_for('login'))
     return render_template('login.html')
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @require_login
 def index():
-    cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM contactos')
-    datos = cur.fetchall()
-    cur.close()
-    return render_template('index.html', contactos = datos, dark_mode=session.get("darkmode", False))
+    #cur = mysql.connection.cursor()
+    #cur.execute('SELECT * FROM contactos')
+    #datos = cur.fetchall()
+    #cur.close()
+    if request.method == 'POST':
+            logging.info("recibió una petición POST")
+            nodo = request.form['nodo']
+            comando = request.form['comando']
+
+            logging.info("comando: {}".format(comando))
+            if comando == 'destello':
+                mqtt.publish(topic=f'{nodo}/destello', payload='destello')
+        
+            if comando == 'setpoint':
+                setpoint = request.form['valor_setpoint']
+                if not setpoint:
+                    flash("El campo Valor Setpoint es oblicatorio", "danger")
+                    return redirect(url_for('index'))
+                mqtt.publish(topic=f'{nodo}/setpoint', payload=int(setpoint))
+            
+            flash('Enviado "{comando}" a {nodo}')
+            return redirect(url_for('index'))
+    
+    nodos=[os.environ['ID_DISPOSITIVO']]
+    logging.info("nodos: {}".format(nodos))
+    return render_template('index.html', nodos=nodos, dark_mode=session.get("darkmode", False))
 
 @app.route('/add_contact', methods=['POST'])
 @require_login
