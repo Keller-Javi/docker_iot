@@ -1,53 +1,67 @@
 {% extends "layout.html" %}
 {% block body %}
-<div class="row">
-  <div class="col-md-7 mx-auto">
-    <div class="card card-body">
-      <form action="{{url_for('add_contact')}}" method="POST">
-        <legend>Cargar contacto</legend>
-        <div class="form-group">
-          <label class="col-form-label mt-4" for="inputDefault">Nombre completo</label>
-          <input type="text" class="form-control" id="inputDefault" data-ddg-inputtype="unknown" name="nombre">
+<h1 style="width: 25%;" class="mx-auto">Control de nodos</h1>
+<form action="{{url_for('index')}}" method="POST" style="width: 40%;" class="mx-auto mb-5">
+  <fieldset>
+    <div>
+      <label for="exampleSelect1" class="form-label mt-4">Selecciona un nodo: </label>
+      <select class="form-select" name="nodo" id="nodo" required>
+        {% for n in nodos %}
+          <option value="{{ n.0 }}">{{ n.1 }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="comando" class="form-label mt-4">Comando: </label>
+      <select class="form-select" name="comando" id="comando" required>
+        <option value="destello">Destello</option>
+        <option value="setpoint">Setpoint</option>
+      </select>
+    </div>
+    <div id="setpoint-div" style="display:none;">
+      <label class="col-form-label mt-4" for="inputDefault">Valor del setpoint: </label>
+      <input type="number" class="form-control" placeholder="33" id="valor_setpoint" name="valor_setpoint" min="0">
+    </div>
+    <button type="submit" class="btn btn-primary mt-4">Enviar</button>
+  </fieldset>
+</form>
+
+<div class="accordion" id="accordionExample">
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingOne">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+        <div class="d-flex justify-content-between w-100">
+          <h3 class="mb-0">Lista de nodos</h3>
         </div>
-        <div class="form-group">
-          <label class="col-form-label mt-4" for="tel">Teléfono</label>
-          <input type="tel" class="form-control" id="tel" data-ddg-inputtype="unknown" name="tel">
+        <div class="d-flex justify-content-end mx-3">
+          <span class="badge bg-secondary">{{ nodos|length }}</span>
         </div>
-        <div class="form-group">
-          <label for="email" class="form-label mt-4">Email</label>
-          <input type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp"
-            data-ddg-inputtype="identities.emailAddress" data-ddg-autofill="true">
-          <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-        </div>
-        <button type="submit" class="btn btn-primary mt-4">guardar</button>
-      </form>
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample" style="">
+      <div class="accordion-body">
+        <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">ID del dispositivo</th>
+            <th scope="col">Nombre del dispositivo</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for nodo in nodos %}
+          <tr class="table-active">
+            <th scope="row">{{ nodo.0 }}</th>
+            <td>{{ nodo.1 }}</td>
+            <td>
+              <a href="{{ url_for('borrar_nodo', id=nodo.0) }}" class="btn btn-danger">Borrar</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
-
-<h1>Control de nodos</h1>
-
-
-<form action="{{url_for('index')}}" method="POST">
-<label for="nodo">Selecciona Nodo:</label>
-    <select name="nodo" id="nodo" required>
-      {% for n in nodos %}
-        <option value="{{ n }}">{{ n }}</option>
-      {% endfor %}
-    </select>
-
-    <label for="comando">Comando:</label>
-    <select name="comando" id="comando" required>
-      <option value="destello">Destello</option>
-      <option value="setpoint">Setpoint</option>
-    </select>
-
-    <div id="setpoint-div" style="display:none;">
-      <label for="valor_setpoint">Valor Setpoint:</label>
-      <input type="number" id="valor_setpoint" name="valor_setpoint" min="0">
-      <br><br>
-    </div>
-
-    <button type="submit">Enviar</button>
-</form>
 {% endblock %}

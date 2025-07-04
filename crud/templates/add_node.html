@@ -3,17 +3,23 @@
 <div class="row">
   <div class="col-md-7 mx-auto">
     <div class="card card-body">
+      {% if nodo %}
+      <form action="{{url_for('editar_nodo', id=nodo[0])}}" method="POST">
+      <legend>Editar nodo</legend>
+      {% else %}
       <form action="{{url_for('add_node')}}" method="POST">
-        <legend>Cargar nodo</legend>
+      <legend>Añadir nodo</legend>
+      {% endif %}
+
         <div class="form-group">
           <label class="col-form-label mt-4" for="name">Nombre del dispositivo</label>
-          <input type="text" class="form-control" id="name" data-ddg-inputtype="unknown" name="name" 
-            placeholder="Termostato de la sala" value="nodo.1" required>
+          <input type="text" class="form-control" id="name_disp" data-ddg-inputtype="unknown" name="name_disp" 
+            placeholder="Ejemplo: Termostato de la sala" value="{{nodo.1}}" required>
         </div>
         <div class="form-group">
           <label class="col-form-label mt-4" for="id">ID del dispositivo</label>
-          <input type="text" class="form-control" id="id" data-ddg-inputtype="unknown" name="id" 
-            value="nodo.2" placeholder="E696729C482DE51E" required>
+          <input type="text" class="form-control" id="id_disp" data-ddg-inputtype="unknown" name="id_disp" 
+            value="{{nodo.0}}" placeholder="Ejemplo: E696729C482DE51E" required>
         </div>
         <button type="submit" class="btn btn-primary mt-4">Guardar</button>
       </form>
