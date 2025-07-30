@@ -10,19 +10,75 @@
   <title>FLASK CRUD 1.6</title>
   <!-- <link rel="stylesheet" href="https://bootswatch.com/5/cosmo/bootstrap.min.css"> -->
   <link rel="stylesheet" href="https://bootswatch.com/5/sketchy/bootstrap.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    .ventilador {
+      font-size: 60px;
+      transition: transform 0.3s;
+    }
+
+    .girando {
+      animation: girar 1s linear infinite;
+    }
+
+    @keyframes girar {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .estufa {
+      font-size: 60px;
+      color: gray;
+      transition: color 0.3s ease;
+    }
+
+    .encendida {
+      color: orange;
+      animation: flamear 0.5s infinite alternate;
+    }
+
+    @keyframes flamear {
+      0%   { transform: scale(1);     color: orange; }
+      50%  { transform: scale(1.1);   color: orangered; }
+      100% { transform: scale(0.95);  color: darkorange; }
+    }
+
+    .foco {
+      font-size: 60px;
+      color: gray;
+      transition: color 0.3s ease, text-shadow 0.3s ease;
+    }
+
+    .encendido {
+      color: gold;
+      animation: brillar 1s infinite alternate;
+      text-shadow: 0 0 10px yellow;
+    }
+
+    @keyframes brillar {
+      0%   { transform: scale(1);     text-shadow: 0 0 8px yellow; }
+      100% { transform: scale(1.05);  text-shadow: 0 0 15px orange; }
+    }
+  </style>
+
   {% with messages = get_flashed_messages() %} {% if messages %}
   {% for message in messages %}
   <div class="alert alert-success alert-dismissible fade show" role="alert">
     <strong>{{ message }}
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
+  
   {% endfor %}
   {% endif %} {% endwith %}
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
-      <a class="navbar-brand" href="{{url_for('index')}}">Ejercicio CRUD</a>
+      <a class="navbar-brand" href="{{url_for('index')}}">Inicio</a>
       {% if session.get("user_id") %}
-        <a class="navbar-brand" href="{{url_for('add_node')}}">Añadir nodo</a>
+        <a class="navbar-brand" href="{{url_for('add_node')}}">Configuración</a>
         <form class="d-flex" method="POST" action="{{url_for('darkmode')}}">
           {% if dark_mode %}
           <button type="submit" class="btn btn-light">Modo claro</button>

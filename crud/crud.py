@@ -6,6 +6,9 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_mqtt import Mqtt
 
+import random
+from datetime import datetime, timedelta
+
 logging.basicConfig(format='%(asctime)s - CRUD - %(levelname)s - %(message)s', level=logging.INFO)
 
 app = Flask(__name__)
@@ -112,6 +115,13 @@ def index():
     cur.execute('SELECT * FROM dispositivos WHERE usuario = %s', (session["id"],))
     nodos = cur.fetchall()
     cur.close()
+
+    # Generar etiquetas (por ejemplo, últimas 24 horas cada hora)
+    now = datetime.now()
+    labels = [(now - timedelta(hours=i)).strftime("%H:%M") for i in reversed(range(24))]
+    # Valores aleatorios entre 15°C y 30°C
+    data = [random.randint(15, 30) for _ in range(24)]
+
     if request.method == 'POST':
             logging.info("recibió una petición POST")
             nodo = request.form['nodo']
@@ -131,7 +141,7 @@ def index():
             flash('Enviado "{comando}" a {nodo}'.format(comando=comando, nodo=nodo))
             return redirect(url_for('index'))
     logging.info(nodos)
-    return render_template('index.html', nodos=nodos, dark_mode=session.get("darkmode", False))
+    return render_template('index.html', nodos=nodos, dark_mode=session.get("darkmode", False), labels=labels, data=data)
 
 @app.route("/logout")
 @require_login

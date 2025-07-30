@@ -1,32 +1,141 @@
 {% extends "layout.html" %}
 {% block body %}
-<h1 style="width: 25%;" class="mx-auto">Control de nodos</h1>
-<form action="{{url_for('index')}}" method="POST" style="width: 40%;" class="mx-auto mb-5">
+<form action="{{ url_for('index') }}" method="POST" style="width: 30%;" class="mx-auto mb-5">
   <fieldset>
-    <div>
-      <label for="exampleSelect1" class="form-label mt-4">Selecciona un nodo: </label>
+    <label for="exampleSelect1" class="form-label mt-4">Selecciona un nodo: </label>
+    <div class="d-flex align-items-end gap-2">
       <select class="form-select" name="nodo" id="nodo" required>
         {% for n in nodos %}
           <option value="{{ n.0 }}">{{ n.1 }}</option>
         {% endfor %}
       </select>
+      <button type="submit" class="btn btn-primary">Seleccionar</button>
     </div>
-    <div>
-      <label for="comando" class="form-label mt-4">Comando: </label>
-      <select class="form-select" name="comando" id="comando" required>
-        <option value="destello">Destello</option>
-        <option value="setpoint">Setpoint</option>
-      </select>
-    </div>
-    <div id="setpoint-div" style="display:none;">
-      <label class="col-form-label mt-4" for="inputDefault">Valor del setpoint: </label>
-      <input type="number" class="form-control" placeholder="33" id="valor_setpoint" name="valor_setpoint" min="0">
-    </div>
-    <button type="submit" class="btn btn-primary mt-4">Enviar</button>
   </fieldset>
 </form>
 
-<div class="accordion" id="accordionExample">
+<!--Contenido de la pagina-->
+<div class="container">
+  <div class="row">
+    <div class="col-6">
+      <div class="card card-body">
+        <h3>Gráfico de temperatura</h3>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <div style="width:80%; height:300px; margin: auto;">
+          <canvas id="tempChart"></canvas>
+        </div>
+
+        <script>
+          const labels = {{ labels|tojson }};
+          const chartData = {{ data|tojson }};
+          const ctx = document.getElementById('tempChart').getContext('2d');
+          const tempChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'Temperatura (°C)',
+                data: chartData,
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.4
+              }]
+            },
+            options: {
+              scales: {
+                y: { suggestedMin: 10, suggestedMax: 35 }
+              },
+              plugins: {
+                legend: { display: true }
+              },
+              responsive: true,
+              maintainAspectRatio: false
+            }
+          });
+        </script>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="text-center">
+        <div class="row">
+          <div class="col-4 col-sm-4">
+            <div class="card card-body">
+              <h4>Configuracio</h4>
+              <p>Temperatura minima: 21°C</p>
+              <p>Temperatura maxima: 30°C</p>
+              <p>Histeresis: 5°C</p>
+              <p>Porcentaje de luz: 20%</p>
+            </div>
+          </div>
+          <div class="col-4 col-sm-4">
+            <div class="card card-body">
+              <h4>Foco</h4>
+               <div style="text-align: center; margin-top: 50px;">
+                <!-- Ícono de bombilla -->
+                <i id="foco" class="fas fa-lightbulb foco"></i>
+                <br>
+                <button onclick="toggleFoco()" class="mt-4">Encender / Apagar foco</button>
+              </div>
+
+              <script>
+                const foco = document.getElementById('foco');
+
+                function toggleFoco() {
+                  foco.classList.toggle('encendido');
+                }
+              </script>
+            </div>
+          </div>
+
+          <!-- Force next columns to break to new line -->
+          <div class="w-100"></div>
+
+          <div class="col-4 col-sm-4">
+            <div class="card card-body">
+              <h4>Ventilador</h4>
+              
+              <div style="text-align: center; margin-top: 50px;">
+                <i id="ventilador" class="fas fa-fan ventilador"></i>
+                <br>
+                <button onclick="toggleVentilador()" class="mt-4">Encender / Apagar</button>
+              </div>
+
+              <script>
+                const ventilador = document.getElementById('ventilador');
+
+                function toggleVentilador() {
+                  ventilador.classList.toggle('girando');
+                }
+              </script>
+            </div>
+          </div>
+          <div class="col-4 col-sm-4">
+            <div class="card card-body">
+              <h4>Estufa</h4>
+              <div style="text-align: center; margin-top: 50px;">
+                <!-- Ícono de fuego o calefactor -->
+                <i id="estufa" class="fas fa-fire estufa"></i>
+                <br>
+                <button onclick="toggleEstufa()" class="mt-4">Encender / Apagar estufa</button>
+              </div>
+
+              <script>
+                const estufa = document.getElementById('estufa');
+
+                function toggleEstufa() {
+                  estufa.classList.toggle('encendida');
+                }
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="accordion mt-4" id="accordionExample">
   <div class="accordion-item">
     <h2 class="accordion-header" id="headingOne">
       <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
