@@ -9,7 +9,8 @@
   <meta charset="UTF-8" />
   <title>FLASK CRUD 1.6</title>
   <!-- <link rel="stylesheet" href="https://bootswatch.com/5/cosmo/bootstrap.min.css"> -->
-  <link rel="stylesheet" href="https://bootswatch.com/5/sketchy/bootstrap.min.css">
+  <!-- <link rel="stylesheet" href="https://bootswatch.com/5/litera/bootstrap.min.css"> -->
+   <link rel="stylesheet" href="https://bootswatch.com/5/lumen/bootstrap.min.css">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -29,7 +30,7 @@
       0%   { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    
+
     .estufa {
       font-size: 60px;
       color: gray;
@@ -98,26 +99,15 @@
 </head>
 
 <body>
-  <div class="container pt-4">
-    {% block body %}
-    {% endblock %}
+  <div class="container-fluid">
+    <div>
+      {% block body %}
+      {% endblock %}
+    </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
   <script src="{{url_for('static', filename='js/main.js')}}"></script>
 </body>
-<script defer>
-    document.addEventListener('DOMContentLoaded', () => {
-      const comandoSelect = document.getElementById('comando');
-      const setpointDiv = document.getElementById('setpoint-div');
-
-      function ajustarCampo() {
-        setpointDiv.style.display = comandoSelect.value === 'setpoint' ? 'block' : 'none';
-      }
-
-      comandoSelect.addEventListener('change', ajustarCampo);
-      ajustarCampo();
-    });
-  </script>
 </html>

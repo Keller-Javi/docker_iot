@@ -1,25 +1,28 @@
 {% extends "layout.html" %}
 {% block body %}
-<form action="{{ url_for('index') }}" method="POST" style="width: 30%;" class="mx-auto mb-5">
-  <fieldset>
-    <label for="exampleSelect1" class="form-label mt-4">Selecciona un nodo: </label>
-    <div class="d-flex align-items-end gap-2">
-      <select class="form-select" name="nodo" id="nodo" required>
-        {% for n in nodos %}
-          <option value="{{ n.0 }}">{{ n.1 }}</option>
-        {% endfor %}
-      </select>
-      <button type="submit" class="btn btn-primary">Seleccionar</button>
-    </div>
-  </fieldset>
-</form>
+<div class="container-fluid">
+  <div class="d-flex justify-content-start">
+    <form action="{{ url_for('index') }}" method="POST">
+      <fieldset>
+        <label for="exampleSelect1" class="form-label mt-4">Selecciona un dispositivo: </label>
+        <div class="d-flex align-items-end gap-2">
+          <select class="form-select" name="nodo" id="nodo" required>
+            {% for n in nodos %}
+              <option value="{{ n.0 }}">{{ n.1 }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-primary">Seleccionar</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
 
-<!--Contenido de la pagina-->
-<div class="container">
-  <div class="row">
-    <div class="col-6">
-      <div class="card card-body">
-        <h3>Gráfico de temperatura</h3>
+<div class="container-fluid w-100 mt-4">
+  <div class="card-group w-100">
+    <!-- Card grande del gráfico -->
+    <div class="card p-3 w-100">
+      <h4 class="card-title text-center">Gráfico de temperatura</h4>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
         <div style="width:80%; height:300px; margin: auto;">
@@ -54,22 +57,14 @@
             }
           });
         </script>
-      </div>
     </div>
-    <div class="col-6">
-      <div class="text-center">
-        <div class="row">
-          <div class="col-4 col-sm-4">
-            <div class="card card-body">
-              <h4>Configuracio</h4>
-              <p>Temperatura minima: 21°C</p>
-              <p>Temperatura maxima: 30°C</p>
-              <p>Histeresis: 5°C</p>
-              <p>Porcentaje de luz: 20%</p>
-            </div>
-          </div>
-          <div class="col-4 col-sm-4">
-            <div class="card card-body">
+    <!-- Card grande que agrupa los cuatro pequeños -->
+    <div class="card p-3 w-100">
+      <div class="row g-0 row-cols-1 row-cols-md-2">
+        <!-- Foco -->
+        <div class="col">
+          <div class="card h-100 text-center">
+            <div class="card-body">
               <h4>Foco</h4>
                <div style="text-align: center; margin-top: 50px;">
                 <!-- Ícono de bombilla -->
@@ -87,12 +82,11 @@
               </script>
             </div>
           </div>
-
-          <!-- Force next columns to break to new line -->
-          <div class="w-100"></div>
-
-          <div class="col-4 col-sm-4">
-            <div class="card card-body">
+        </div>
+        <!-- Ventilador -->
+        <div class="col">
+          <div class="card h-100 text-center">
+            <div class="card-body">
               <h4>Ventilador</h4>
               
               <div style="text-align: center; margin-top: 50px;">
@@ -110,8 +104,11 @@
               </script>
             </div>
           </div>
-          <div class="col-4 col-sm-4">
-            <div class="card card-body">
+        </div>
+        <!-- Estufa -->
+        <div class="col">
+          <div class="card h-100 text-center">
+            <div class="card-body">
               <h4>Estufa</h4>
               <div style="text-align: center; margin-top: 50px;">
                 <!-- Ícono de fuego o calefactor -->
@@ -130,6 +127,18 @@
             </div>
           </div>
         </div>
+        <!-- Configuración -->
+        <div class="col">
+          <div class="card h-100 text-center">
+            <div class="card-body">
+              <h4>Configuración</h4>
+              <p>Temperatura minima: 21°C</p>
+              <p>Temperatura maxima: 30°C</p>
+              <p>Histeresis: 5°C</p>
+              <p>Porcentaje de luz: 20%</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -140,7 +149,7 @@
     <h2 class="accordion-header" id="headingOne">
       <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
         <div class="d-flex justify-content-between w-100">
-          <h3 class="mb-0">Lista de nodos</h3>
+          <h3 class="mb-0">Lista de dispositivos</h3>
         </div>
         <div class="d-flex justify-content-end mx-3">
           <span class="badge bg-secondary">{{ nodos|length }}</span>

@@ -31,7 +31,7 @@ app.config['MQTT_BROKER_PORT'] = int(os.environ['PUERTO_MQTTS'])
 app.config['MQTT_BROKER_URL'] = os.environ['DOMINIO']
 app.config['MQTT_USERNAME'] = os.environ['MQTT_USR']
 app.config['MQTT_PASSWORD'] = os.environ['MQTT_PASS']
-app.config['MQTT_KEEPALIVE'] = 360  # Tiempo de keepalive
+app.config['MQTT_KEEPALIVE'] = 720  # Tiempo de keepalive
 app.config['MQTT_TLS_ENABLED'] = True  # Habilita TLS si es necesario
 
 import ssl
@@ -108,6 +108,16 @@ def login():
                 return redirect(url_for('login'))
     return render_template('login.html')
 
+def generar_temperaturas(n=24, temp_inicio=23, delta_max=2, limites=(21, 30)):
+    temps = [temp_inicio]
+    for _ in range(1, n):
+        delta = random.uniform(-delta_max, delta_max)
+        nueva = temps[-1] + delta
+        # Limitar al rango deseado
+        nueva = max(limites[0], min(limites[1], nueva))
+        temps.append(round(nueva, 1))
+    return temps
+
 @app.route('/', methods=['GET', 'POST'])
 @require_login
 def index():
@@ -120,7 +130,7 @@ def index():
     now = datetime.now()
     labels = [(now - timedelta(hours=i)).strftime("%H:%M") for i in reversed(range(24))]
     # Valores aleatorios entre 15°C y 30°C
-    data = [random.randint(15, 30) for _ in range(24)]
+    data = generar_temperaturas()
 
     if request.method == 'POST':
             logging.info("recibió una petición POST")
